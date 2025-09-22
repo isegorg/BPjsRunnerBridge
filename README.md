@@ -21,8 +21,8 @@ mvn clean package
 
 This will produce two JARs under target/:
 
-* original-BPjsRunnerBridge-VERSION.jar (normal JAR)
-* BPjsRunnerBridge-VERSION.jar (fat JAR, ready to run)
+* `original-BPjsRunnerBridge-VERSION.jar` (normal JAR)
+* `BPjsRunnerBridge-VERSION.jar` (fat JAR, ready to run)
 
 ## ▶️ Usage
 
@@ -65,8 +65,7 @@ BPjsRunnerBridge/
 │
 ├─ src/main/java/es/osoco/bpjs/bridge/
 │    └─ BPjsRunnerStdInOutBridge.java
-├─ examples/
-│    ├─ basic_example.js
+├─ src/main/examples/
 │    └─ advanced_example.js
 ├─ pom.xml
 └─ README.md
