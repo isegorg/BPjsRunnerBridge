@@ -62,12 +62,12 @@ public class BPjsRunnerStdInOutBridge {
 		    Map<String, Object> map = new HashMap<>();
 		    map.put("type", "eventFired");
 		    map.put("name", event.getName());		    
-                    event.getDataField().ifPresent(data -> map.put("data", data.toString()));
+                    event.getDataField().ifPresent(data -> map.put("data", mapper.valueToTree(data)));
 		    
 		    String json = mapper.writeValueAsString(map);
                     System.out.println(json);
                     System.out.flush();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -86,10 +86,10 @@ public class BPjsRunnerStdInOutBridge {
                             combinedBProgram.enqueueExternalEvent(new BEvent(evName, data));
                         }
                     } catch (Exception ex) {
-                        System.err.println("Error reading from stdin: " + ex.getMessage());
+                        System.out.println("Error reading from stdin: " + ex.getMessage());
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
