@@ -3,11 +3,16 @@ package es.osoco.bpjs.bridge;
 import il.ac.bgu.cs.bp.bpjs.execution.BProgramRunner;
 import il.ac.bgu.cs.bp.bpjs.execution.listeners.BProgramRunnerListenerAdapter;
 import il.ac.bgu.cs.bp.bpjs.model.*;
+import il.ac.bgu.cs.bp.bpjs.model.eventselection.EventSelectionStrategy;
+import il.ac.bgu.cs.bp.bpjs.model.eventselection.LoggingEventSelectionStrategyDecorator;
+import il.ac.bgu.cs.bp.bpjs.model.eventselection.PrioritizedBSyncEventSelectionStrategy;
+import il.ac.bgu.cs.bp.bpjs.model.eventselection.SimpleEventSelectionStrategy;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,30 +31,42 @@ public class BPjsRunnerStdInOutBridge {
         } else {
             path = DEFAULT_EXAMPLES_DIR;
         }
-
-        File f = new File(path);
         StringBuilder combinedCode = new StringBuilder();
 
-        if (f.isDirectory()) {
-            File[] jsFiles = f.listFiles((d, name) -> name.endsWith(".js"));
-            if (jsFiles == null || jsFiles.length == 0) {
-                throw new RuntimeException("No JS files found in directory: " + path);
-            }
-            for (File js : jsFiles) {
-                String code = Files.readString(js.toPath());
-                combinedCode.append(code).append("\n");
-                System.out.println("Loaded BProgram: " + js.getName());
-            }
-        } else if (f.isFile()) {
-            String code = Files.readString(f.toPath());
-            combinedCode.append(code);
-            System.out.println("Loaded BProgram: " + f.getName());
-        } else {
-            throw new RuntimeException("File or directory not found: " + path);
-        }
+	for (String arg : args) {
+	    if (!arg.startsWith("-")) {
+		File f = new File(arg);
+		if (f.isDirectory()) {
+		    File[] jsFiles = f.listFiles((d, name) -> name.endsWith(".js"));
+		    if (jsFiles == null || jsFiles.length == 0) {
+			throw new RuntimeException("No JS files found in directory: " + arg);
+		    }
+		    for (File js : jsFiles) {
+			String code = Files.readString(js.toPath());
+			combinedCode.append(code).append("\n");
+			System.out.println("Loaded BProgram: " + js.getName());
+		    }
+		} else if (f.isFile()) {
+		    String code = Files.readString(f.toPath());
+		    combinedCode.append(code);
+		    System.out.println("Loaded BProgram: " + f.getName());
+		} else {
+		    throw new RuntimeException("File or directory not found: " + arg);
+		}		
+	    }
+	}
+	
 
         // Create single BProgram with all combined JS code
         BProgram combinedBProgram = new StringBProgram(combinedCode.toString());
+
+	PrioritizedBSyncEventSelectionStrategy pess = new PrioritizedBSyncEventSelectionStrategy();
+        EventSelectionStrategy ess = switchPresent("-v", args) ?
+	    new LoggingEventSelectionStrategyDecorator(pess) :
+	    pess;
+
+        combinedBProgram.setEventSelectionStrategy(ess);
+	
 	combinedBProgram.setWaitForExternalEvents(true);
 	
         BProgramRunner runner = new BProgramRunner(combinedBProgram);
@@ -98,4 +115,12 @@ public class BPjsRunnerStdInOutBridge {
 
         runner.run();
     }
+
+    /**
+     * @return {@code true} iff the passed switch is present in args.
+     */
+    private static boolean switchPresent(String aSwitch, String[] args) {
+        return Arrays.stream(args).anyMatch(s -> s.trim().equals(aSwitch));
+    }
+    
 }
