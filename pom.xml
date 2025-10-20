@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>es.osoco.bpjs.bridge</groupId>
-  <artifactId>BPjsRunnerBridge</artifactId>
+  <artifactId>BPjsBridge</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <name>bpjs-bridge</name>
@@ -78,7 +78,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                  <mainClass>es.osoco.bpjs.bridge.BPjsRunnerStdInOutBridge</mainClass>
+                  <mainClass>es.osoco.bpjs.bridge.BPjsLauncher</mainClass>
                 </configuration>
             </plugin>
 
@@ -96,7 +96,7 @@
 		  <configuration>
                     <transformers>
                       <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>es.osoco.bpjs.bridge.BPjsRunnerStdInOutBridge</mainClass>
+                        <mainClass>es.osoco.bpjs.bridge.BPjsLauncher</mainClass>
                       </transformer>
                     </transformers>
 		  </configuration>
